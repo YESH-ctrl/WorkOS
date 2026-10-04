@@ -1772,20 +1772,94 @@ function DistrictsPage() {
 }
 
 // ----------------------------------------------------
+// ----------------------------------------------------
 // 10. AI INSIGHTS
 // ----------------------------------------------------
+function FormattedAIResponse({ text }: { text: string }) {
+  if (!text) return null
+
+  const lines = text.split('\n')
+  const elements: React.ReactNode[] = []
+  let currentList: React.ReactNode[] = []
+
+  const parseInline = (str: string) => {
+    const parts = str.split(/(\*\*.*?\*\*)/g)
+    return parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={idx} className="font-semibold text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>
+      }
+      return part
+    })
+  }
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="list-disc pl-5 my-2.5 space-y-1.5 text-slate-700 dark:text-slate-300">
+          {currentList}
+        </ul>
+      )
+      currentList = []
+    }
+  }
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim()
+    if (!trimmed) {
+      flushList()
+      return
+    }
+
+    if (trimmed.startsWith('### ')) {
+      flushList()
+      elements.push(
+        <h3 key={index} className="text-base font-bold text-slate-900 dark:text-white mt-4 mb-2">
+          {parseInline(trimmed.slice(4))}
+        </h3>
+      )
+    } else if (trimmed.startsWith('#### ')) {
+      flushList()
+      elements.push(
+        <h4 key={index} className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-3 mb-1.5">
+          {parseInline(trimmed.slice(5))}
+        </h4>
+      )
+    } else if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+      currentList.push(
+        <li key={index} className="text-sm text-slate-700 dark:text-slate-300">
+          {parseInline(trimmed.slice(2))}
+        </li>
+      )
+    } else {
+      flushList()
+      elements.push(
+        <p key={index} className="text-sm text-slate-700 dark:text-slate-300 my-2 leading-relaxed">
+          {parseInline(trimmed)}
+        </p>
+      )
+    }
+  })
+
+  flushList()
+
+  return <div className="formatted-ai-response space-y-1">{elements}</div>
+}
+
 function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [insights, setInsights] = useState<Insight[]>([])
   const [loading, setLoading] = useState(true)
   const [question, setQuestion] = useState('Why are trainees from this course failing to convert to retained employment?')
   const [apiReply, setApiReply] = useState<string | null>(null)
+  const [suggestedAction, setSuggestedAction] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [analyzed, setAnalyzed] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const handleRunAnalysis = async () => {
     if (!question.trim()) return
     setAnalyzing(true)
     setAnalyzed(true)
+    setErrorMsg(null)
     try {
       const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
       const res = await fetch(`${apiBase}/api/chat`, {
@@ -1798,9 +1872,17 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
       if (res.ok) {
         const data = await res.json()
         setApiReply(data.reply)
+        if (data.suggested_action) {
+          setSuggestedAction(data.suggested_action)
+        }
+      } else {
+        const errText = await res.text()
+        console.error('Failed to fetch analysis:', res.status, errText)
+        setErrorMsg(`Server returned status ${res.status}. Please check backend logs.`)
       }
     } catch (e) {
       console.error('Error querying chat endpoint:', e)
+      setErrorMsg('Failed to connect to backend AI endpoint. Is the backend server running?')
     } finally {
       setAnalyzing(false)
     }
@@ -1845,27 +1927,62 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
           <div className="analysis-card">
             <div className="analysis-head">
               <div>
-                <span className="eyebrow-small">Evidence-backed outcome analysis</span>
-                <h2>{currentInsight ? currentInsight.title : 'Outcome findings grounded in database evidence'}</h2>
+                <span className="eyebrow-small">
+                  {apiReply ? 'Live AI Outcome Analysis' : 'Evidence-backed outcome analysis'}
+                </span>
+                <h2>
+                  {apiReply
+                    ? 'AI Outcome Intelligence Findings'
+                    : currentInsight
+                    ? currentInsight.title
+                    : 'Outcome findings grounded in database evidence'}
+                </h2>
               </div>
               <Badge tone="green" dot>{currentInsight?.confidence || 'High'}</Badge>
             </div>
 
             <div className="analysis-body">
-              <div className="analysis-finding">
-                <span className="analysis-label">Finding</span>
-                <p>
-                  {currentInsight
-                    ? currentInsight.finding
-                    : 'WorkOS connects recorded verification evidence, attendance, and follow-up signals into reviewable findings.'}
-                </p>
-              </div>
-
-              {currentInsight && (
-                <div className="analysis-finding mt-4">
-                  <span className="analysis-label">Recommendation</span>
-                  <p>{currentInsight.recommendation}</p>
+              {analyzing ? (
+                <div className="py-8 text-center text-slate-500">
+                  <div className="inline-flex items-center justify-center space-x-2">
+                    <Sparkles className="animate-spin text-primary" size={20} />
+                    <span className="text-sm font-medium">Analyzing database evidence & generating outcome intelligence...</span>
+                  </div>
                 </div>
+              ) : errorMsg ? (
+                <div className="p-4 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 rounded-md text-sm">
+                  {errorMsg}
+                </div>
+              ) : apiReply ? (
+                <div className="analysis-finding">
+                  <span className="analysis-label">AI Analysis Output</span>
+                  <FormattedAIResponse text={apiReply} />
+
+                  {suggestedAction && (
+                    <div className="mt-4 p-3 bg-primary/5 rounded-md border border-primary/20">
+                      <span className="text-xs font-semibold text-primary uppercase tracking-wider block mb-1">Recommended Action</span>
+                      <p className="text-sm text-slate-800 dark:text-slate-200">{suggestedAction}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="analysis-finding">
+                    <span className="analysis-label">Finding</span>
+                    <p>
+                      {currentInsight
+                        ? currentInsight.finding
+                        : 'WorkOS connects recorded verification evidence, attendance, and follow-up signals into reviewable findings.'}
+                    </p>
+                  </div>
+
+                  {currentInsight && (
+                    <div className="analysis-finding mt-4">
+                      <span className="analysis-label">Recommendation</span>
+                      <p>{currentInsight.recommendation}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
