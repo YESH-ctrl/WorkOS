@@ -19,6 +19,8 @@ import {
   ArrowRight,
   ArrowUpDown,
   ArrowUpRight,
+  BarChart3,
+  Building2,
   Check,
   ChevronDown,
   ChevronRight,
@@ -38,8 +40,10 @@ import {
   SlidersHorizontal,
   Sparkles,
   Target,
+  TrendingDown,
   UserRoundCheck,
   X,
+  Zap,
   LogOut,
   Moon,
   Sun,
@@ -1854,11 +1858,31 @@ interface ChatMessageItem {
   suggestedAction?: string
 }
 
-const STARTER_PROMPTS = [
-  'Why are trainees failing to convert at Day 90?',
-  'Compare course placement rates & median wages',
-  'Which training providers have verified evidence?',
-  'Analyze Pune vs Nashik district cohort dynamics',
+const STARTER_CARDS = [
+  {
+    icon: TrendingDown,
+    title: '90-Day Retention Analysis',
+    prompt: 'Why are trainees failing to convert to retained employment at Day 90?',
+    badge: 'Inflection Points',
+  },
+  {
+    icon: BarChart3,
+    title: 'Course & Wage Comparison',
+    prompt: 'Compare placement conversion rates and median wages across courses.',
+    badge: 'Benchmarking',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Provider Evidence Audit',
+    prompt: 'Which training providers have the highest verified employment evidence?',
+    badge: 'Verification',
+  },
+  {
+    icon: Building2,
+    title: 'District Attrition Factors',
+    prompt: 'Analyze factors driving attrition in Pune vs Nashik district cohorts.',
+    badge: 'Territorial Dynamics',
+  },
 ]
 
 function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
@@ -1866,7 +1890,7 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
     {
       id: 'welcome-1',
       role: 'assistant',
-      content: `### Welcome to WorkOS Outcome Intelligence! 👋\n\nI am your institutional copilot strictly grounded in verified database evidence. You can chat with me to explore:\n* **Educational & Vocational Courses**: Completion rates, curriculum alignment, and median wage progression.\n* **Trainee Learning Outcomes**: Placement conversions, retention inflection points (Day 0 to Day 365), and attrition drivers.\n* **District & Provider Dynamics**: Regional hiring corridors and training provider verification evidence.\n\n*Select a suggested prompt below or type your inquiry to begin our conversation.*`,
+      content: `### Welcome to WorkOS Outcome Intelligence! 👋\n\nI am your institutional copilot strictly grounded in verified database evidence. You can chat with me to explore:\n* **Educational & Vocational Courses**: Completion rates, curriculum alignment, and median wage progression.\n* **Trainee Learning Outcomes**: Placement conversions, retention inflection points (Day 0 to Day 365), and attrition drivers.\n* **District & Provider Dynamics**: Regional hiring corridors and training provider verification evidence.\n\n*Select an inquiry card below or type your question to start our conversation.*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ])
@@ -1972,12 +1996,14 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
     setErrorMsg(null)
   }
 
+  const isFreshConversation = messages.length <= 1
+
   return (
     <div className="app-page insights-page max-w-6xl mx-auto pb-10">
       <PageHeader
         eyebrow="Decision Support"
         title="Outcome Intelligence Copilot"
-        description="ChatGPT-style conversational assistant grounded 100% in live Supabase outcome records."
+        description="Interactive AI workspace grounded 100% in live database evidence. Inquire into employment conversion, retention drops, and wage progression."
         actions={
           <Button icon="refresh-cw" variant="secondary" onClick={handleClearThread}>
             New Thread
@@ -1985,19 +2011,51 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
         }
       />
 
+      {/* Top Banner Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">9</div>
+          <div>
+            <span className="text-[11px] text-slate-400 block uppercase font-medium">Tracked Trainees</span>
+            <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200">Active Database Profiles</strong>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs">77.8%</div>
+          <div>
+            <span className="text-[11px] text-slate-400 block uppercase font-medium">Placement Rate</span>
+            <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200">Verified Conversions</strong>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center font-bold text-xs">55.6%</div>
+          <div>
+            <span className="text-[11px] text-slate-400 block uppercase font-medium">Verified Evidence</span>
+            <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200">Authenticated Records</strong>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center font-bold text-xs">₹20.2k</div>
+          <div>
+            <span className="text-[11px] text-slate-400 block uppercase font-medium">Median Wage</span>
+            <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200">Evaluated Monthly</strong>
+          </div>
+        </div>
+      </div>
+
       <div className="insights-layout grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Conversation Stream */}
         <div className="lg:col-span-3 flex flex-col space-y-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[520px] max-h-[700px]">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col overflow-hidden h-[660px]">
             
             {/* Chat Top Info Bar */}
-            <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-6 py-3 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Live Supabase RAG Active</span>
-                <span className="text-xs text-slate-400">· Multi-Turn Context</span>
+                <span className="text-xs text-slate-400">· Multi-Turn Thread</span>
               </div>
-              <Badge tone="blue" dot>Grounding: 100% Verified</Badge>
+              <Badge tone="blue" dot>100% Grounded</Badge>
             </div>
 
             {/* Chat Scroll Area */}
@@ -2009,7 +2067,7 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
                     <div className={`flex max-w-[88%] ${isUser ? 'flex-row-reverse space-x-reverse' : 'flex-row'} space-x-3 items-start`}>
                       
                       {/* Avatar */}
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white font-medium text-xs ${
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white font-medium text-xs shadow-xs ${
                         isUser ? 'bg-indigo-600' : 'bg-primary'
                       }`}>
                         {isUser ? <UserRoundCheck size={16} /> : <Sparkles size={16} />}
@@ -2019,8 +2077,8 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
                       <div className="flex flex-col">
                         <div className={`p-4 rounded-2xl text-sm ${
                           isUser
-                            ? 'bg-indigo-600 text-white rounded-tr-none shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-tl-none border border-slate-200/60 dark:border-slate-700/60'
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-tr-none shadow-xs'
+                            : 'bg-slate-100/90 dark:bg-slate-800/90 text-slate-900 dark:text-slate-100 rounded-tl-none border border-slate-200/80 dark:border-slate-700/70 shadow-2xs'
                         }`}>
                           {isUser ? (
                             <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
@@ -2063,10 +2121,41 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
                 )
               })}
 
+              {/* Fresh Thread Starter Cards */}
+              {isFreshConversation && (
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">Suggested Inquiries</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {STARTER_CARDS.map((card, idx) => {
+                      const CardIcon = card.icon
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleSendMessage(card.prompt)}
+                          disabled={analyzing}
+                          className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/50 text-left transition-all group shadow-2xs hover:shadow-xs disabled:opacity-50 cursor-pointer flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                <CardIcon size={16} />
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{card.badge}</span>
+                            </div>
+                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 group-hover:text-primary transition-colors">{card.title}</h4>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">{card.prompt}</p>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Typing / Analyzing Indicator */}
               {analyzing && (
                 <div className="flex justify-start items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0 shadow-xs">
                     <Sparkles size={16} className="animate-spin" />
                   </div>
                   <div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-200/60 dark:border-slate-700/60 flex items-center space-x-2">
@@ -2087,21 +2176,6 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Starter Prompt Chips */}
-            <div className="px-6 py-2 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200/60 dark:border-slate-800 flex items-center space-x-2 overflow-x-auto no-scrollbar">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">Prompts:</span>
-              {STARTER_PROMPTS.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendMessage(prompt)}
-                  disabled={analyzing}
-                  className="text-xs px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary hover:text-primary transition-all shrink-0 shadow-2xs disabled:opacity-50 cursor-pointer"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-
             {/* Input Bar */}
             <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
               <div className="relative flex items-center">
@@ -2111,7 +2185,7 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a follow-up question or inquire about courses, trainees, retention, or districts... (Press Enter to send)"
                   rows={2}
-                  className="w-full pl-4 pr-14 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-slate-900 transition-all resize-none"
+                  className="w-full pl-4 pr-14 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary focus:bg-white dark:focus:bg-slate-900 transition-all resize-none shadow-2xs"
                 />
                 <button
                   onClick={() => handleSendMessage()}
@@ -2145,20 +2219,20 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
             </div>
           </Panel>
 
-          <Panel title="Live Database Focus">
+          <Panel title="Outcome Model Scope">
             <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <p>WorkOS connects recorded verification evidence, attendance, and follow-up signals into reviewable findings.</p>
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <span>Total Trainees</span>
-                <strong className="text-slate-900 dark:text-white">9 Tracked</strong>
+                <span>Consent Tracking</span>
+                <strong className="text-slate-900 dark:text-white">Day 0 to 365</strong>
               </div>
               <div className="flex items-center justify-between">
-                <span>Placement Conversion</span>
-                <strong className="text-emerald-600">77.8%</strong>
+                <span>Employer Portals</span>
+                <strong className="text-emerald-600">Authenticated</strong>
               </div>
               <div className="flex items-center justify-between">
-                <span>Verified Evidence</span>
-                <strong className="text-blue-600">55.6%</strong>
+                <span>District Corridors</span>
+                <strong className="text-blue-600">Pune, Nashik, Thane</strong>
               </div>
             </div>
           </Panel>
