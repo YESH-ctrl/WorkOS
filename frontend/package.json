@@ -10,6 +10,11 @@
     "typecheck": "tsc -b --pretty false",
     "preview": "vite preview"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
     "@vitejs/plugin-react": "^4.3.4",
