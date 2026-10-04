@@ -32,6 +32,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def normalize_vercel_paths(request: Request, call_next):
+    """
+    Normalizes serverless function paths when deployed on Vercel.
+    Strips internal script prefixes like /api/index.py or /api/index.
+    """
+    path = request.scope.get("path", "")
+    if path.startswith("/api/index.py"):
+        request.scope["path"] = path.replace("/api/index.py", "", 1) or "/"
+    elif path.startswith("/api/index"):
+        request.scope["path"] = path.replace("/api/index", "", 1) or "/"
+    return await call_next(request)
+
 # Simple in-memory rate limiter per IP (max 30 requests per minute)
 RATE_LIMIT_MAX = 30
 RATE_LIMIT_WINDOW = 60
