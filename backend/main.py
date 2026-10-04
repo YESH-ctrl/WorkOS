@@ -37,13 +37,33 @@ app.add_middleware(
 async def normalize_vercel_paths(request: Request, call_next):
     """
     Normalizes serverless function paths when deployed on Vercel.
-    Strips internal script prefixes like /api/index.py or /api/index.
+    Strips internal script prefixes like /api/index.py or /api/index,
+    and inspects Vercel headers for original URI.
     """
     path = request.scope.get("path", "")
-    if path.startswith("/api/index.py"):
-        request.scope["path"] = path.replace("/api/index.py", "", 1) or "/"
-    elif path.startswith("/api/index"):
-        request.scope["path"] = path.replace("/api/index", "", 1) or "/"
+    
+    # Inspect Vercel headers for original request URI
+    x_matched_path = (
+        request.headers.get("x-matched-path")
+        or request.headers.get("x-forwarded-uri")
+        or request.headers.get("x-rewrite-url")
+    )
+    
+    if x_matched_path:
+        raw_path = x_matched_path.split("?")[0]
+    else:
+        raw_path = path
+
+    # Strip internal script prefixes
+    if raw_path.startswith("/api/index.py"):
+        raw_path = raw_path.replace("/api/index.py", "", 1) or "/"
+    elif raw_path.startswith("/api/index"):
+        raw_path = raw_path.replace("/api/index", "", 1) or "/"
+
+    if not raw_path.startswith("/"):
+        raw_path = "/" + raw_path
+
+    request.scope["path"] = raw_path
     return await call_next(request)
 
 # Simple in-memory rate limiter per IP (max 30 requests per minute)
@@ -84,6 +104,14 @@ async def root():
         }
     }
 
+@app.options("/")
+@app.options("/api")
+@app.options("/api/")
+@app.options("/chat")
+@app.options("/api/chat")
+async def options_handler():
+    return {"status": "ok"}
+
 @app.get("/health")
 @app.get("/api/health")
 async def health_check():
@@ -97,6 +125,9 @@ async def health_check():
         "timestamp": int(time.time())
     }
 
+@app.post("/")
+@app.post("/api")
+@app.post("/api/")
 @app.post("/chat")
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatRequest, request: Request):
@@ -138,3 +169,4 @@ async def context_summary():
         "success": True,
         "metrics": context.get("metrics", {})
     }
+
