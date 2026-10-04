@@ -50,6 +50,19 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage] = Field(..., min_items=1, max_items=50)
     workspace: Optional[str] = "National Skills Programme"
 
+@app.get("/")
+@app.get("/api")
+async def root():
+    return {
+        "status": "ok",
+        "message": "WorkOS Outcome Intelligence Backend is active and operational.",
+        "endpoints": {
+            "health": "/api/health",
+            "chat": "/api/chat",
+            "summary": "/api/context/summary"
+        }
+    }
+
 @app.get("/api/health")
 async def health_check():
     """
