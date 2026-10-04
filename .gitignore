@@ -1,0 +1,23 @@
+# Node dependencies & build artifacts
+**/node_modules/
+**/dist/
+**/build/
+**/*.tsbuildinfo
+.pnpm-store/
+
+# Python dependencies & cache
+**/__pycache__/
+**/*.py[cod]
+**/venv/
+**/env/
+
+# Environment secrets
+**/.env
+**/.env.local
+**/.env.*.local
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
