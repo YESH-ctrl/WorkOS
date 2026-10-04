@@ -2209,31 +2209,80 @@ function InsightsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
         </div>
 
         {/* Sidebar Rail */}
-        <aside className="space-y-4">
+        <aside className="space-y-5">
           <Panel title="Analysis Guardrails">
-            <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
-              <div className="flex items-center space-x-2"><Check size={14} className="text-emerald-500" /><span>Sources stay visible</span></div>
-              <div className="flex items-center space-x-2"><Check size={14} className="text-emerald-500" /><span>Confidence is explicit</span></div>
-              <div className="flex items-center space-x-2"><Check size={14} className="text-emerald-500" /><span>Human review maintained</span></div>
-              <div className="flex items-center space-x-2"><Check size={14} className="text-emerald-500" /><span>Zero fabricated claims</span></div>
+            <div className="p-5 space-y-3">
+              <div className="flex items-center space-x-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Check size={12} />
+                </span>
+                <span className="font-medium">Sources stay visible</span>
+              </div>
+              <div className="flex items-center space-x-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Check size={12} />
+                </span>
+                <span className="font-medium">Confidence is explicit</span>
+              </div>
+              <div className="flex items-center space-x-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Check size={12} />
+                </span>
+                <span className="font-medium">Human review maintained</span>
+              </div>
+              <div className="flex items-center space-x-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Check size={12} />
+                </span>
+                <span className="font-medium">Zero fabricated claims</span>
+              </div>
             </div>
           </Panel>
 
-          <Panel title="Outcome Model Scope">
-            <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
-              <p>WorkOS connects recorded verification evidence, attendance, and follow-up signals into reviewable findings.</p>
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <span>Consent Tracking</span>
-                <strong className="text-slate-900 dark:text-white">Day 0 to 365</strong>
+          <Panel title="Live Database Focus">
+            <div className="p-5 space-y-3.5">
+              <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                WorkOS connects recorded verification evidence, attendance, and follow-up signals into reviewable findings.
+              </p>
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Total Trainees</span>
+                  <strong className="text-slate-900 dark:text-white font-semibold">9 Tracked</strong>
+                </div>
+                <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Placement Conversion</span>
+                  <strong className="text-emerald-600 font-semibold">77.8%</strong>
+                </div>
+                <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Verified Evidence</span>
+                  <strong className="text-blue-600 font-semibold">55.6%</strong>
+                </div>
+                <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Median Wage</span>
+                  <strong className="text-purple-600 font-semibold">₹20,200/mo</strong>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span>Employer Portals</span>
-                <strong className="text-emerald-600">Authenticated</strong>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>District Corridors</span>
-                <strong className="text-blue-600">Pune, Nashik, Thane</strong>
-              </div>
+            </div>
+          </Panel>
+
+          <Panel title="Programme Actions">
+            <div className="p-5 space-y-3">
+              <Button
+                variant="primary"
+                onClick={() => onNavigate('/app/interventions')}
+                icon="plus"
+                className="w-full justify-center text-xs"
+              >
+                Create Intervention
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => onNavigate('/app/outcomes')}
+                icon="arrow-up-right"
+                className="w-full justify-center text-xs"
+              >
+                View Outcomes Dashboard
+              </Button>
             </div>
           </Panel>
         </aside>
