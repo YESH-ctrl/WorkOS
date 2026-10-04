@@ -52,6 +52,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 @app.get("/api")
+@app.get("/api/")
 async def root():
     return {
         "status": "ok",
@@ -63,6 +64,7 @@ async def root():
         }
     }
 
+@app.get("/health")
 @app.get("/api/health")
 async def health_check():
     """
@@ -75,6 +77,7 @@ async def health_check():
         "timestamp": int(time.time())
     }
 
+@app.post("/chat")
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatRequest, request: Request):
     """
@@ -104,6 +107,7 @@ async def chat_endpoint(req: ChatRequest, request: Request):
             detail="An error occurred while analyzing the outcome data. Please try again."
         )
 
+@app.get("/context/summary")
 @app.get("/api/context/summary")
 async def context_summary():
     """
